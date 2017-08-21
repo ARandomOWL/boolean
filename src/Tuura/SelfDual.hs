@@ -4,6 +4,7 @@ module Tuura.SelfDual (
 import Control.Monad
 import Data.Either
 import Data.List
+import Text.PrettyPrint.HughesPJClass
 
 import Tuura.Boolean
 
@@ -24,6 +25,9 @@ getSelfDuals n = map (concat . unpackTuple . reverseSnd) unzipped
           unzipped = map unzip possibles
           reverseSnd (a, b) = (a, reverse b)
           unpackTuple (a, b) = [a, b]
+
+prettyBool :: [[Bool]] -> Doc
+prettyBool = vcat . map (text . concat) . (map . map) (show .fromEnum)
 
 parseToCNF :: String -> CNF String
 parseToCNF = simplifyCNF . convertToCNF . parseWrapper
