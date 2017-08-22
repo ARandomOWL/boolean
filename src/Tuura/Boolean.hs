@@ -6,7 +6,8 @@ module Tuura.Boolean (
   CNF (..), DNF (..), Literal (..),
   convertToCNF,
   simplifyCNF, simplifyDNF, convertCNFtoDNF,
-  getVars, eval, eval') where
+  getVars, eval, eval', assignOne,
+  shannonDecomp, shannonPos, shannonNeg) where
 
 import Data.List
 import Data.List.Extra
@@ -85,6 +86,10 @@ eval' (Or a b) f    = case (eval' a f, eval' b f) of
                         (x    , y    ) -> Or x y
 eval' (SubExpr a) f = eval' a f
 
+-- Assign one variable a specific value for eval'
+assignOne :: Eq a => a -> Bool -> a -> Maybe Bool
+assignOne target val var = if' (var == target) (Just val) Nothing
+
 if' :: Bool -> a -> a -> a
 if' True  x _ = x
 if' False _ y = y
@@ -136,3 +141,21 @@ removeSupersets s = [ x | (x:xs) <- tails sortByLength, not (check x xs) ]
 -- subexpression, but negated. Both of these can be removed from the expression.
 removeRedundancies :: Eq a => [[Literal a]] -> [[Literal a]]
 removeRedundancies = filter (\ts -> all (\t -> invert t `notElem` ts) ts)
+
+-- Express function in the form f = f(x=0)*!x + f(x=1)*x
+shannonDecomp :: Eq a => Expr a -> Expr a
+shannonDecomp expr = Or t1 t2
+  where t1 = And (shannonNeg expr) $ (Not . Var) chosenVar
+        t2 = And (shannonPos expr) $ Var chosenVar
+        chosenVar = shannonChoose expr
+
+shannonPos :: Eq a => Expr a -> Expr a
+shannonPos expr = eval' expr (assignOne chosenVar True)
+  where chosenVar = shannonChoose expr
+
+shannonNeg :: Eq a => Expr a -> Expr a
+shannonNeg expr = eval' expr (assignOne (shannonChoose expr) False)
+
+-- Complicated function to choose which variable to assign to
+shannonChoose :: Eq a => Expr a -> a
+shannonChoose = head . getVars

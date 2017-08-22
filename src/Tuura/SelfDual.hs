@@ -1,5 +1,5 @@
 module Tuura.SelfDual (
-    isSelfDual, getSelfDuals) where
+  isSelfDual, getSelfDuals) where
 
 import Control.Monad (replicateM)
 import Data.Either (isRight)
