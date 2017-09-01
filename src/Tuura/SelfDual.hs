@@ -15,13 +15,12 @@ isSelfDual func = f == fd
           final = sort . fromDNF
 
 -- List truth tables for all possible self-dual function of n variables
--- Descending order [2^n - 1 .. 0]
 getSelfDuals :: Int -> [[Bool]]
 getSelfDuals 0 = [[]]
 getSelfDuals n = map (concat . unpackTuple . reverseSnd) unzipped
     where cells = 2^n
           halfCells = cells `div` 2
-          possibles = replicateM halfCells [(True,False), (False, True)]
+          possibles = replicateM halfCells [(False, True), (True,False)]
           unzipped = map unzip possibles
           reverseSnd (a, b) = (a, reverse b)
           unpackTuple (a, b) = [a, b]
