@@ -26,10 +26,7 @@ getSelfDuals n = map (concat . unpackTuple . reverseSnd) unzipped
           unpackTuple (a, b) = [a, b]
 
 parseToCNF :: String -> CNF String
-parseToCNF func =
-  case parseExpr func of
-    Right x -> (simplifyCNF . convertToCNF) x
-    Left _  -> error $ "Error parsing " ++ show func
+parseToCNF = simplifyCNF . convertToCNF . parseWrapper
 
 parseToDNF :: String -> DNF String
 parseToDNF = simplifyDNF . convertCNFtoDNF . simplifyCNF . parseToCNF
