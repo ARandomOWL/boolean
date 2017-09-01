@@ -1,9 +1,9 @@
 module Tuura.SelfDual (
     isSelfDual, getSelfDuals) where
 
-import Control.Monad (replicateM)
-import Data.Either (isRight)
-import Data.List (sort)
+import Control.Monad
+import Data.Either
+import Data.List
 
 import Tuura.Boolean
 
