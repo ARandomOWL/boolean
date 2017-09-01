@@ -1,5 +1,5 @@
 module Tuura.SelfDual (
-    isSelfDual, getSelfDuals) where
+  parseToDNF, isSelfDual, getSelfDuals) where
 
 import Control.Monad
 import Data.Either
