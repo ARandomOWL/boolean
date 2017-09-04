@@ -17,12 +17,11 @@ isSelfDual func = f == fd
 -- List truth tables for all possible self-dual function of n variables
 getSelfDuals :: Int -> [[Bool]]
 getSelfDuals 0 = [[]]
-getSelfDuals n = map (concat . reverseSndUnpack) unzipped
+getSelfDuals n = zipWith (++) truthTop truthBottom
     where cells = 2^n
           halfCells = cells `div` 2
-          possibles = replicateM halfCells [(False, True), (True,False)]
-          unzipped = map unzip possibles
-          reverseSndUnpack (a, b) = [a, reverse b]
+          truthTop = replicateM halfCells [False, True]
+          truthBottom = map (reverse . map not) truthTop
 
 parseToCNF :: String -> CNF String
 parseToCNF = simplifyCNF . convertToCNF . parseWrapper
