@@ -2,7 +2,7 @@
 
 module Tuura.Boolean.Parser (
     Expr (..),
-    parseExpr, parseWrapper, simplify) where
+    parseExpr, parseWrapper, simplify, partialEval) where
 
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Expr
