@@ -25,6 +25,7 @@ instance Applicative Expr where
 instance Monad Expr where
     return = pure
 
+    Val bool  >>= _ = Val bool
     Var a     >>= f = f a
     Not x     >>= f = Not     (x >>= f)
     And x y   >>= f = And     (x >>= f) (y >>= f)
@@ -49,7 +50,7 @@ simplify (And x       y      ) = if' (x == y) x (And x y)
 simplify (Or  (Val x) (Val y)) = Val $ x || y
 simplify (Or  (Val x) y      ) = if' x        (Val True) y
 simplify (Or  x       (Val y)) = if' y        (Val True) x
-simplify (Or  x y)             = if' (x == y) x (Or x y)
+simplify (Or  x       y      ) = if' (x == y) x (Or x y)
 simplify (SubExpr x)           = simplify x
 
 if' :: Bool -> a -> a -> a
