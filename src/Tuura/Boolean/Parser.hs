@@ -45,13 +45,13 @@ simplify (Var x)               = Var x
 simplify (Not (Not x))         = simplify x
 simplify (Not x)               = Not x
 simplify (And (Val x) (Val y)) = Val $ x && y
-simplify (And (Val x) y      ) = if' x        y (Val False)
-simplify (And x       (Val y)) = if' y        x (Val False)
-simplify (And x       y      ) = if' (x == y) x (And x y)
+simplify (And (Val x) y      ) = if' x        (simplify y) (Val False)
+simplify (And x       (Val y)) = if' y        (simplify x) (Val False)
+simplify (And x       y      ) = if' (x == y) (simplify x) (simplify $ And (simplify x) (simplify y))
 simplify (Or  (Val x) (Val y)) = Val $ x || y
-simplify (Or  (Val x) y      ) = if' x        (Val True) y
-simplify (Or  x       (Val y)) = if' y        (Val True) x
-simplify (Or  x       y      ) = if' (x == y) x (Or x y)
+simplify (Or  (Val x) y      ) = if' x        (Val True) (simplify y)
+simplify (Or  x       (Val y)) = if' y        (Val True) (simplify x)
+simplify (Or  x       y      ) = if' (x == y) (simplify x) (simplify $ Or (simplify x) (simplify y))
 simplify (SubExpr x)           = simplify x
 
 if' :: Bool -> a -> a -> a
