@@ -2,7 +2,7 @@
 
 module Tuura.Boolean.Parser (
     Expr (..),
-    parseExpr, parseWrapper) where
+    parseExpr, parseWrapper, simplify) where
 
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Expr
@@ -16,7 +16,7 @@ data Expr a = Val Bool
           | And (Expr a) (Expr a)
           | Or (Expr a) (Expr a)
           | SubExpr (Expr a)
-            deriving (Functor, Foldable, Traversable, Show)
+            deriving (Functor, Foldable, Traversable, Show, Eq)
 
 instance Applicative Expr where
     pure  = Var
@@ -30,6 +30,31 @@ instance Monad Expr where
     And x y   >>= f = And     (x >>= f) (y >>= f)
     Or  x y   >>= f = Or      (x >>= f) (y >>= f)
     SubExpr x >>= f = SubExpr (x >>= f)
+
+partialEval :: (a -> Maybe Bool) -> Expr a -> Expr a
+partialEval f expr = expr >>= substitute
+  where
+    substitute x = case f x of
+        Just bool -> Val bool
+        Nothing   -> Var x
+
+simplify :: Eq a => Expr a -> Expr a
+simplify (Val bool)            = Val bool
+simplify (Var x)               = Var x
+simplify (Not x)               = Not x
+simplify (And (Val x) (Val y)) = Val $ x && y
+simplify (And (Val x) y      ) = if' x        y (Val False)
+simplify (And x       (Val y)) = if' y        x (Val False)
+simplify (And x       y      ) = if' (x == y) x (And x y)
+simplify (Or  (Val x) (Val y)) = Val $ x || y
+simplify (Or  (Val x) y      ) = if' x        (Val True) y
+simplify (Or  x       (Val y)) = if' y        (Val True) x
+simplify (Or  x y)             = if' (x == y) x (Or x y)
+simplify (SubExpr x)           = simplify x
+
+if' :: Bool -> a -> a -> a
+if' True  x _ = x
+if' False _ y = y
 
 parseExpr :: String -> Either ParseError (Expr String)
 parseExpr = parse expr ""
