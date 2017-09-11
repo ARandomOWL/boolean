@@ -42,6 +42,7 @@ partialEval f expr = expr >>= substitute
 simplify :: Eq a => Expr a -> Expr a
 simplify (Val bool)            = Val bool
 simplify (Var x)               = Var x
+simplify (Not (Not x))         = simplify x
 simplify (Not x)               = Not x
 simplify (And (Val x) (Val y)) = Val $ x && y
 simplify (And (Val x) y      ) = if' x        y (Val False)
