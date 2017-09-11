@@ -56,13 +56,9 @@ convertToCNF expr = cnf
 getVars :: Eq a => Expr a -> [a]
 getVars = nub . toList
 
-eval :: Expr a -> (a -> Bool) -> Bool
+eval :: Eq a => Expr a -> (a -> Bool) -> Bool
 eval (Val a) _     = a
-eval (Var a) f     = f a
-eval (Not a) f     = not (eval a f)
-eval (And a b) f   = eval a f && eval b f
-eval (Or a b) f    = eval a f || eval b f
-eval (SubExpr a) f = eval a f
+eval expr    f     = eval (simplify $ partialEval (Just . f) expr) (const True)
 
 invert :: Literal a -> Literal a
 invert l = Literal (variable l) (not $ polarity l)
